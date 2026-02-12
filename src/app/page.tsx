@@ -1,14 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import ConnectWalletButton from "@/components/connectWalletButton";
 
 export default function Home() {
-  const [isConnected, setIsConnected] = useState(false);
-
-  const connectWallet = () => {
-    // Mock wallet connection for now
-    setIsConnected(!isConnected);
-  };
 
   return (
     <div className="min-h-screen flex flex-col items-stretch relative">
@@ -29,12 +23,7 @@ export default function Home() {
           <a href="#" className="hover:text-white transition-colors">Developers</a>
           <a href="#" className="hover:text-white transition-colors">Governance</a>
         </nav>
-        <button 
-          onClick={connectWallet}
-          className="btn-primary"
-        >
-          {isConnected ? "Connected" : "Connect Wallet"}
-        </button>
+        <ConnectWalletButton />
       </header>
 
       {/* Main Content */}
