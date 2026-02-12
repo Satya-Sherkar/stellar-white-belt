@@ -63,11 +63,23 @@ export default function ConnectWalletButton() {
   return (
     <div>
       {!publicKey ? (
-        <button onClick={handleConnect}>Connect Wallet</button>
+        <button
+          onClick={handleConnect}
+          className="btn-primary"
+        >
+          Connect Wallet
+        </button>
       ) : (
-        <div>
-          <p>Connected: {publicKey}</p>
-          <button onClick={handleDisconnect}>Disconnect</button>
+        <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-full pl-6 pr-2 py-2 backdrop-blur-md">
+          <span className="font-mono text-sm text-white/80">
+            {publicKey.slice(0, 4)}...{publicKey.slice(-4)}
+          </span>
+          <button
+            onClick={handleDisconnect}
+            className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+          >
+            Disconnect
+          </button>
         </div>
       )}
     </div>
