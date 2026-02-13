@@ -1,9 +1,23 @@
 "use client";
 
 import ConnectWalletButton from "@/components/connectWalletButton";
+import Link from "next/link";
 
 export default function Home() {
 
+  function getStarted() {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100]';
+    modal.innerHTML = `
+      <div class="glass rounded-3xl p-8 max-w-md w-full mx-4 border border-white/10">
+      <h2 class="text-2xl font-bold mb-3 gradient-text">Welcome to Stellar DApp</h2>
+      <p class="text-white/70 mb-6">Connect your wallet to get started and experience the future of finance.</p>
+      <button class="btn-primary w-full py-3 rounded-full font-semibold">Got it!</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.querySelector('button')?.addEventListener('click', () => modal.remove());
+  }
   return (
     <div className="min-h-screen flex flex-col items-stretch relative">
       {/* Background Blobs */}
@@ -18,11 +32,6 @@ export default function Home() {
           <span className="gradient-text">Stellar</span>
           <span className="text-white">DApp</span>
         </div>
-        <nav className="hidden md:flex gap-8 text-sm font-medium text-white/70">
-          <a href="#" className="hover:text-white transition-colors">Ecosystem</a>
-          <a href="#" className="hover:text-white transition-colors">Developers</a>
-          <a href="#" className="hover:text-white transition-colors">Governance</a>
-        </nav>
         <ConnectWalletButton />
       </header>
 
@@ -35,16 +44,18 @@ export default function Home() {
             <span className="gradient-text">Built on Stellar</span>
           </h1>
           <p className="text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Experience lightning-fast transactions, low fees, and global reach. 
+            Experience lightning-fast transactions, low fees, and global reach.
             Join the decentralized revolution with our modern Stellar-powered application.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn-primary text-lg px-10 py-4">
+            <button onClick={getStarted} className="btn-primary text-lg px-10 py-4">
               Get Started
             </button>
-            <button className="glass px-10 py-4 rounded-full font-semibold hover:bg-white/10 transition-all">
-              Learn More
-            </button>
+            <Link href="https://stellar.org/" target="_blank">
+              <button className="glass px-10 py-4 rounded-full font-semibold hover:bg-white/10 transition-all cursor-pointer">
+                Learn More
+              </button>
+            </Link>
           </div>
         </section>
 
