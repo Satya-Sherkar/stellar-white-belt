@@ -25,8 +25,6 @@ export default function ConnectWalletButton() {
     };
     checkConnection();
 
-    // Listen for state updates
-    // @ts-ignore - The types for 'on' might be tricky due to enum/string mismatch
     const unsubscribe = StellarWalletsKit.on(KitEventType.STATE_UPDATED, (event: KitEventStateUpdated) => {
       if (event.payload.address) {
         setPublicKey(event.payload.address);
@@ -51,8 +49,6 @@ export default function ConnectWalletButton() {
 
   const handleDisconnect = async () => {
     try {
-      // @ts-ignore
-      // Explicitly call disconnect if available
       await StellarWalletsKit.disconnect();
       setPublicKey(null);
     } catch (e) {
