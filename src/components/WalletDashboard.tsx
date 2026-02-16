@@ -5,9 +5,9 @@ import { Horizon } from "@stellar/stellar-sdk";
 
 interface Transaction {
   id: string;
-  type: string;
+  type: "sent" | "received";
   amount: string;
-  sourceAccount: string;
+  otherParty: string;
   timestamp: string;
   memo?: string;
 }
@@ -29,43 +29,67 @@ export default function WalletDashboard({ publicKey }: { publicKey: string }) {
         setLoading(true);
         setError(null);
 
-        const server = new Horizon.Server("https://horizon-testnet.stellar.org");
+        const server = new Horizon.Server(
+          "https://horizon-testnet.stellar.org",
+        );
 
-        // Fetch account details
+        /* ---------------- BALANCE ---------------- */
+
         const account = await server.accounts().accountId(publicKey).call();
-        
-        // Get native balance
-        const nativeBalance = account.balances.find(b => b.asset_type === "native");
+
+        const nativeBalance = account.balances.find(
+          (b: any) => b.asset_type === "native",
+        );
+
         if (nativeBalance) {
           setBalance({
-            balance: nativeBalance.balance,
+            balance: parseFloat(nativeBalance.balance).toFixed(2),
             asset: "XLM",
           });
         }
 
-        // Fetch recent transactions
-        const txList = await server
-          .transactions()
+        /* ---------------- PAYMENTS (REAL TRANSACTIONS) ---------------- */
+
+        const paymentsPage = await server
+          .operations()
           .forAccount(publicKey)
           .order("desc")
-          .limit(5)
+          .limit(10)
           .call();
 
-        const formattedTransactions: Transaction[] = txList.records.map((tx: any) => {
-          const operation = tx.operations[0];
-          return {
-            id: tx.id,
-            type: operation?.type || "unknown",
-            amount: operation?.amount || "0",
-            sourceAccount: operation?.source_account || tx.source_account,
-            timestamp: tx.created_at,
-            memo: tx.memo || undefined,
-          };
-        });
+        // filter only XLM payments
+        const paymentOps = paymentsPage.records.filter(
+          (op: any) => op.type === "payment" && op.asset_type === "native",
+        );
 
-        setTransactions(formattedTransactions);
+        const formatted: Transaction[] = await Promise.all(
+          paymentOps.slice(0, 5).map(async (op: any) => {
+            // get parent transaction to read memo
+            let memo: string | undefined = undefined;
+
+            try {
+              const tx = await op.transaction();
+              if (tx.memo_type !== "none") memo = tx.memo;
+            } catch {}
+
+            const isSender = op.from === publicKey;
+
+            return {
+              id: op.id,
+              type: isSender ? "sent" : "received",
+              amount: parseFloat(op.amount).toFixed(2),
+              otherParty: isSender ? op.to : op.from,
+              timestamp: op.created_at,
+              memo,
+            };
+          }),
+        );
+
+        setTransactions(formatted);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch account data");
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch account data",
+        );
         console.error("Error fetching account data:", err);
       } finally {
         setLoading(false);
@@ -74,6 +98,8 @@ export default function WalletDashboard({ publicKey }: { publicKey: string }) {
 
     fetchAccountData();
   }, [publicKey]);
+
+  /* ---------------- UI ---------------- */
 
   if (loading) {
     return (
@@ -93,43 +119,69 @@ export default function WalletDashboard({ publicKey }: { publicKey: string }) {
 
   return (
     <div className="space-y-6">
-      {/* Balance Card */}
+      {/* Balance */}
       {balance && (
         <div className="glass rounded-3xl p-8 border border-white/10">
           <p className="text-white/60 text-sm mb-2">Wallet Balance</p>
           <div className="flex items-baseline gap-3">
             <h2 className="text-5xl font-bold text-white">{balance.balance}</h2>
-            <span className="text-2xl text-purple-400 font-semibold">{balance.asset}</span>
+            <span className="text-2xl text-purple-400 font-semibold">
+              {balance.asset}
+            </span>
           </div>
-          <p className="text-white/40 text-xs mt-4">Account: {publicKey.slice(0, 8)}...{publicKey.slice(-8)}</p>
+          <p className="text-white/40 text-xs mt-4">
+            Account: {publicKey.slice(0, 8)}...{publicKey.slice(-8)}
+          </p>
         </div>
       )}
 
-      {/* Recent Transactions */}
+      {/* Transactions */}
       <div className="glass rounded-3xl p-8 border border-white/10">
-        <h3 className="text-xl font-bold mb-6 text-white">Recent Transactions</h3>
-        
+        <h3 className="text-xl font-bold mb-6 text-white">Recent Payments</h3>
+
         {transactions.length === 0 ? (
-          <p className="text-white/60 text-center py-8">No transactions yet</p>
+          <p className="text-white/60 text-center py-8">No payments yet</p>
         ) : (
           <div className="space-y-3">
             {transactions.map((tx) => (
               <div
                 key={tx.id}
-                className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors"
+                className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10"
               >
                 <div className="flex-1">
-                  <p className="font-semibold text-white capitalize">{tx.type}</p>
+                  <p
+                    className={`font-semibold ${
+                      tx.type === "sent" ? "text-red-400" : "text-green-400"
+                    }`}
+                  >
+                    {tx.type === "sent" ? "Sent" : "Received"}
+                  </p>
+
                   <p className="text-xs text-white/50 mt-1">
                     {new Date(tx.timestamp).toLocaleString()}
                   </p>
+
+                  <p className="text-xs text-white/40 mt-1">
+                    {tx.type === "sent" ? "To: " : "From: "}
+                    {tx.otherParty.slice(0, 6)}...{tx.otherParty.slice(-6)}
+                  </p>
+
                   {tx.memo && (
-                    <p className="text-xs text-white/40 mt-1">Memo: {tx.memo}</p>
+                    <p className="text-xs text-purple-300 mt-1">
+                      Memo: {tx.memo}
+                    </p>
                   )}
                 </div>
+
                 <div className="text-right">
-                  <p className="font-semibold text-white">{tx.amount}</p>
-                  <p className="text-xs text-white/50">XLM</p>
+                  <p
+                    className={`font-semibold ${
+                      tx.type === "sent" ? "text-red-400" : "text-green-400"
+                    }`}
+                  >
+                    {tx.type === "sent" ? "-" : "+"}
+                    {tx.amount} XLM
+                  </p>
                 </div>
               </div>
             ))}
