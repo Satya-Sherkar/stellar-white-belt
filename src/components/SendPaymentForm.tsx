@@ -153,7 +153,6 @@ export default function SendPaymentForm({ publicKey }: { publicKey: string }) {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00"
-              step="0.0000001"
               min="0"
               className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pr-14 text-white placeholder-white/40 focus:outline-none focus:border-purple-500/50 transition-colors"
               disabled={loading}
