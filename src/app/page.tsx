@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import ConnectWalletButton from "@/components/connectWalletButton";
 import WalletDashboard from "@/components/WalletDashboard";
-//import SendPaymentForm from "@/components/SendPaymentForm";
+import SendPaymentForm from "@/components/SendPaymentForm";
 import { StellarWalletsKit, KitEventType, KitEventStateUpdated } from "@creit-tech/stellar-wallets-kit";
 import { initWalletKit } from "@/lib/stellar-wallets-kit";
 import Link from "next/link";
@@ -87,7 +87,7 @@ export default function Home() {
                 <WalletDashboard publicKey={publicKey} />
               </div>
               <div>
-                {/*<SendPaymentForm publicKey={publicKey} />*/}
+                <SendPaymentForm publicKey={publicKey} />*
               </div>
             </div>
           </div>
