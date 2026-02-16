@@ -2,6 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { Horizon } from "@stellar/stellar-sdk";
+import {
+  Wallet,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Clock,
+  Copy,
+  FileText,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 
 interface Transaction {
   id: string;
@@ -104,14 +114,15 @@ export default function WalletDashboard({ publicKey }: { publicKey: string }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-purple-500"></div>
+        <Loader2 className="h-12 w-12 text-purple-500 animate-spin" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="glass rounded-2xl p-6 border border-red-500/50 bg-red-500/10">
+      <div className="glass rounded-2xl p-6 border border-red-500/50 bg-red-500/10 flex items-center gap-3">
+        <AlertCircle className="text-red-400" />
         <p className="text-red-400">Error: {error}</p>
       </div>
     );
@@ -122,22 +133,38 @@ export default function WalletDashboard({ publicKey }: { publicKey: string }) {
       {/* Balance */}
       {balance && (
         <div className="glass rounded-3xl p-8 border border-white/10">
-          <p className="text-white/60 text-sm mb-2">Wallet Balance</p>
+          <div className="flex items-center gap-2 mb-3">
+            <Wallet className="text-purple-400" size={22} />
+            <p className="text-white/70 text-sm">Wallet Balance</p>
+          </div>
+
           <div className="flex items-baseline gap-3">
             <h2 className="text-5xl font-bold text-white">{balance.balance}</h2>
             <span className="text-2xl text-purple-400 font-semibold">
               {balance.asset}
             </span>
           </div>
-          <p className="text-white/40 text-xs mt-4">
-            Account: {publicKey.slice(0, 8)}...{publicKey.slice(-8)}
-          </p>
+
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-white/40 text-xs">
+              Account: {publicKey.slice(0, 8)}...{publicKey.slice(-8)}
+            </p>
+
+            <Copy
+              size={16}
+              className="text-white/40 hover:text-purple-400 cursor-pointer transition"
+              onClick={() => navigator.clipboard.writeText(publicKey)}
+            />
+          </div>
         </div>
       )}
 
       {/* Transactions */}
       <div className="glass rounded-3xl p-8 border border-white/10">
-        <h3 className="text-xl font-bold mb-6 text-white">Recent Payments</h3>
+        <div className="flex items-center gap-2 mb-6">
+          <Clock className="text-purple-400" size={20} />
+          <h3 className="text-xl font-bold text-white">Recent Payments</h3>
+        </div>
 
         {transactions.length === 0 ? (
           <p className="text-white/60 text-center py-8">No payments yet</p>
@@ -146,33 +173,54 @@ export default function WalletDashboard({ publicKey }: { publicKey: string }) {
             {transactions.map((tx) => (
               <div
                 key={tx.id}
-                className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10"
+                className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-200"
               >
-                <div className="flex-1">
-                  <p
-                    className={`font-semibold ${
-                      tx.type === "sent" ? "text-red-400" : "text-green-400"
+                <div className="flex items-start gap-3 flex-1">
+                  {/* ICON */}
+                  <div
+                    className={`p-2 rounded-xl ${
+                      tx.type === "sent"
+                        ? "bg-red-500/15 text-red-400"
+                        : "bg-green-500/15 text-green-400"
                     }`}
                   >
-                    {tx.type === "sent" ? "Sent" : "Received"}
-                  </p>
+                    {tx.type === "sent" ? (
+                      <ArrowUpRight size={18} />
+                    ) : (
+                      <ArrowDownLeft size={18} />
+                    )}
+                  </div>
 
-                  <p className="text-xs text-white/50 mt-1">
-                    {new Date(tx.timestamp).toLocaleString()}
-                  </p>
-
-                  <p className="text-xs text-white/40 mt-1">
-                    {tx.type === "sent" ? "To: " : "From: "}
-                    {tx.otherParty.slice(0, 6)}...{tx.otherParty.slice(-6)}
-                  </p>
-
-                  {tx.memo && (
-                    <p className="text-xs text-purple-300 mt-1">
-                      Memo: {tx.memo}
+                  {/* DETAILS */}
+                  <div className="flex-1">
+                    <p
+                      className={`font-semibold ${
+                        tx.type === "sent" ? "text-red-400" : "text-green-400"
+                      }`}
+                    >
+                      {tx.type === "sent" ? "Sent" : "Received"}
                     </p>
-                  )}
+
+                    <p className="text-xs text-white/50 mt-1 flex items-center gap-1">
+                      <Clock size={12} />
+                      {new Date(tx.timestamp).toLocaleString()}
+                    </p>
+
+                    <p className="text-xs text-white/40 mt-1">
+                      {tx.type === "sent" ? "To: " : "From: "}
+                      {tx.otherParty.slice(0, 6)}...{tx.otherParty.slice(-6)}
+                    </p>
+
+                    {tx.memo && (
+                      <p className="text-xs text-purple-300 mt-1 flex items-center gap-1">
+                        <FileText size={12} />
+                        {tx.memo}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
+                {/* AMOUNT */}
                 <div className="text-right">
                   <p
                     className={`font-semibold ${

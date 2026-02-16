@@ -3,6 +3,17 @@
 import { useState } from "react";
 import { StellarWalletsKit } from "@creit-tech/stellar-wallets-kit";
 import * as StellarSdk from "@stellar/stellar-sdk";
+import {
+  Send,
+  User,
+  Coins,
+  FileText,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  AtSign,
+} from "lucide-react";
 
 const TESTNET_NETWORK_PASSPHRASE = "Test SDF Network ; September 2015";
 
@@ -102,43 +113,63 @@ export default function SendPaymentForm({ publicKey }: { publicKey: string }) {
 
   return (
     <div className="glass rounded-3xl p-8 border border-white/10">
-      <h3 className="text-xl font-bold mb-6 text-white">Send Payment</h3>
+      <div className="flex items-center gap-2 mb-6">
+        <Send className="text-purple-400" size={22} />
+        <h3 className="text-xl font-bold text-white">Send Payment</h3>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-white/80 mb-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-white/80 mb-2">
+            <User size={16} className="text-purple-400" />
             Recipient Stellar Address
           </label>
-          <input
-            type="text"
-            value={recipient}
-            onChange={(e) => setRecipient(e.target.value)}
-            placeholder="G..."
-            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-purple-500/50 transition-colors"
-            disabled={loading}
-          />
+
+          <div className="relative">
+            <AtSign
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40"
+            />
+            <input
+              type="text"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              placeholder="G..."
+              className="w-full bg-white/10 border border-white/20 rounded-lg pl-9 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-purple-500/50 transition-colors"
+              disabled={loading}
+            />
+          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white/80 mb-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-white/80 mb-2">
+            <Coins size={16} className="text-purple-400" />
             Amount (XLM)
           </label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-            step="0.0000001"
-            min="0"
-            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-purple-500/50 transition-colors"
-            disabled={loading}
-          />
+
+          <div className="relative">
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              step="0.0000001"
+              min="0"
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pr-14 text-white placeholder-white/40 focus:outline-none focus:border-purple-500/50 transition-colors"
+              disabled={loading}
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-purple-400 text-sm font-semibold">
+              XLM
+            </span>
+          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white/80 mb-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-white/80 mb-2">
+            <FileText size={16} className="text-purple-400" />
             Memo (Optional)
           </label>
+
           <input
             type="text"
             value={memo}
@@ -161,9 +192,15 @@ export default function SendPaymentForm({ publicKey }: { publicKey: string }) {
                 : "bg-linear-to-r from-red-500/10 to-rose-500/5 border-l-red-400 text-red-300"
             }`}
           >
-            <span className="text-lg mt-0.5 shrink-0">
-              {message.type === "success" ? "✓" : "✕"}
-            </span>
+            {message.type === "success" ? (
+              <CheckCircle2
+                className="text-green-400 mt-0.5 shrink-0"
+                size={20}
+              />
+            ) : (
+              <AlertCircle className="text-red-400 mt-0.5 shrink-0" size={20} />
+            )}
+
             <div className="flex-1">
               <p className="font-medium text-sm">
                 {message.type === "success" ? "Success" : "Error"}
@@ -176,7 +213,9 @@ export default function SendPaymentForm({ publicKey }: { publicKey: string }) {
                   rel="noopener noreferrer"
                   className="text-xs mt-2 inline-block underline hover:opacity-75 transition-opacity truncate"
                 >
-                  View on Stellar Expert →
+                  <span className="flex items-center gap-1">
+                    View on Stellar Expert <ExternalLink size={12} />
+                  </span>
                 </a>
               )}
             </div>
@@ -186,9 +225,19 @@ export default function SendPaymentForm({ publicKey }: { publicKey: string }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full btn-primary py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+          className="w-full btn-primary py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
         >
-          {loading ? "Sending..." : "Send Payment"}
+          {loading ? (
+            <>
+              <Loader2 className="animate-spin" size={18} />
+              Sending...
+            </>
+          ) : (
+            <>
+              <Send size={18} />
+              Send Payment
+            </>
+          )}
         </button>
       </form>
     </div>
