@@ -137,6 +137,24 @@ stellar-white-belt/
 
 ---
 
+### Screenshots
+
+**Dapp UI and Connect Button**
+
+![Dapp UI and Connect Button](/public/1.png)
+
+**Connect Wallet**
+![Connect Wallet](/public/2.png)
+
+**Approve in Wallet to connect**
+![Approve in Wallet to connect](/public/3.png)
+
+**Main Dashboard with wallet balance, Paayment form and recent transactions**
+![Main Dashboard](/public/4.png)
+
+**Feedback to user after successfull payment**
+![Feedback to user](/public/5.png)
+
 ## 🔗 Stellar Resources
 
 - [Stellar Developer Docs](https://developers.stellar.org/)
