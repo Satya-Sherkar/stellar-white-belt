@@ -48,7 +48,7 @@ Ensure you have the following installed:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/stellar-white-belt.git
+   git clone https://github.com/Satya-Sherkar/stellar-white-belt.git
    cd stellar-white-belt
    ```
 
